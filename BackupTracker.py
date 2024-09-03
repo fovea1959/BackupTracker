@@ -12,8 +12,6 @@ class BackupTrackerMainFrame (BackupTrackerWx.BackupTrackerMainFrame):
 def main(args):
     app = wx.App(False)
     frame = BackupTrackerMainFrame(parent=None)
-    for r in BackupTrackerData.get_resources():
-        frame.m_dataViewResourcesName.
 
     frame.Show()
     app.MainLoop()
