@@ -39,6 +39,14 @@ class Resource(Base):
         return self._repr(resource_id=self.resource_id, resource_path=self.resource_path)
 
 
+history_association_table = Table(
+    "history_sources",
+    Base.metadata,
+    Column("resource_id", ForeignKey("resources.resource_id")),
+    Column("history_id", ForeignKey("history.history_id")),
+)
+
+
 class History(Base):
     __tablename__ = 'history'
 
@@ -49,3 +57,5 @@ class History(Base):
 
     destination_resource_id: Mapped[int] = mapped_column(ForeignKey("resources.resource_id"))
     destination: Mapped["Resource"] = relationship()
+
+    sources: Mapped[List[Resource]] = relationship(secondary=history_association_table)

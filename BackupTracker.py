@@ -1,7 +1,6 @@
 import sys
 import wx
 
-import BackupTrackerData
 import BackupTrackerWx
 
 

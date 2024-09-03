@@ -44,7 +44,8 @@ def main(argv):
             when=datetime.datetime.now(),
             job_tool='tool',
             job_description='description',
-            destination=r
+            destination=r,
+            sources=[r]
         )
         session.add(history)
 
