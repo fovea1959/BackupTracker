@@ -1,4 +1,3 @@
-import datetime
 import os
 import sys
 
@@ -37,7 +36,7 @@ jj = {
     'WD-WX42D24ML7N4_synology2': ((SS_S2_BACKUP_SETS, SS_S2_VIDEO), DD_WX42_S2, 'hyperbackup', (
         ('backup', '2024-08-30 11:57'),
     ), {}),
-    'bkp_video_wd_black': ((SS_S2_BACKUP_SETS, SS_S2_VIDEO), DD_WX42_S2, 'hyperbackup', (
+    'bkp_video_wd_black': ((SS_S2_BACKUP_SETS, SS_S2_VIDEO), DD_WD_BLACK, 'hyperbackup', (
         ('backup', '2024-08-30 14:12'),
         ('integrity check', '2020-10-18 13:36'),
     ), {}),

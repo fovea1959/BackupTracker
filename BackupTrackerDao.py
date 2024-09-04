@@ -1,9 +1,11 @@
 import datetime
+import typing
 
 import BackupTrackerEntities
 
 from sqlalchemy.orm import Session
 from sqlalchemy import select
+from sqlalchemy.engine.result import ScalarResult
 
 
 class BackupTrackerDao:
@@ -28,6 +30,11 @@ class BackupTrackerDao:
     def destination_by_name(self, name: str = None):
         stmt = select(BackupTrackerEntities.Destination).where(BackupTrackerEntities.Destination.destination_path == name)
         result = self.session.scalars(stmt).first()
+        return result
+
+    def jobs(self) -> ScalarResult[BackupTrackerEntities.Job]:
+        stmt = select(BackupTrackerEntities.Job)
+        result = self.session.scalars(stmt)
         return result
 
     def job_by_name(self, name: str = None):
