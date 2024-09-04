@@ -5,8 +5,8 @@ import sqlalchemy.orm.exc
 
 from typing import List
 
-from sqlalchemy import Column, ForeignKeyConstraint, Index, Integer, PrimaryKeyConstraint, Text, DateTime, Table, ForeignKey
-from sqlalchemy.orm import Mapped, DeclarativeBase, mapped_column, relationship
+from sqlalchemy import Column, Integer, Text, DateTime, Table, ForeignKey
+from sqlalchemy.orm import DeclarativeBase, mapped_column, relationship
 from sqlalchemy.orm.base import Mapped
 
 
@@ -72,6 +72,9 @@ class History(Base):
     __tablename__ = 'history'
 
     history_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    job_id: Mapped[int] = mapped_column(ForeignKey("jobs.job_id"))
+    job: Mapped["Job"] = relationship()
+
     job_tool: Mapped[str] = mapped_column(Text, nullable=False)
     job_description: Mapped[str] = mapped_column(Text)
     when: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False)
@@ -80,3 +83,6 @@ class History(Base):
     destination: Mapped["Resource"] = relationship()
 
     sources: Mapped[List[Resource]] = relationship(secondary=history_source_association_table)
+
+    def __repr__(self):
+        return self._repr(history_id=self.history_id, job_id=self.job_id)
