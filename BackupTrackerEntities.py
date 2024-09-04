@@ -29,21 +29,31 @@ class Base(DeclarativeBase):
         return f"<{self.__class__.__name__} {id(self)}>"
 
 
-class Resource(Base):
-    __tablename__ = 'resources'
+class Destination(Base):
+    __tablename__ = 'destinations'
 
-    resource_id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    resource_path: Mapped[str] = mapped_column(Text, unique=True)
+    destination_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    destination_path: Mapped[str] = mapped_column(Text, unique=True)
 
     def __repr__(self):
-        return self._repr(resource_id=self.resource_id, resource_path=self.resource_path)
+        return self._repr(resource_id=self.destination_id, resource_path=self.destination_path)
+
+
+class Source(Base):
+    __tablename__ = 'sources'
+
+    source_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    source_path: Mapped[str] = mapped_column(Text, unique=True)
+
+    def __repr__(self):
+        return self._repr(resource_id=self.source_id, resource_path=self.source_path)
 
 
 job_source_association_table = Table(
     "job_sources",
     Base.metadata,
     Column("job_id", ForeignKey("jobs.job_id")),
-    Column("resource_id", ForeignKey("resources.resource_id")),
+    Column("source_id", ForeignKey("sources.source_id")),
 )
 
 
@@ -54,17 +64,17 @@ class Job(Base):
     job_tool: Mapped[str] = mapped_column(Text, nullable=False)
     job_description: Mapped[str] = mapped_column(Text)
 
-    destination_resource_id: Mapped[int] = mapped_column(ForeignKey("resources.resource_id"))
-    destination: Mapped["Resource"] = relationship()
+    destination_id: Mapped[int] = mapped_column(ForeignKey("destinations.destination_id"))
+    destination: Mapped["Destination"] = relationship()
 
-    sources: Mapped[List[Resource]] = relationship(secondary=job_source_association_table)
+    sources: Mapped[List[Source]] = relationship(secondary=job_source_association_table)
 
 
 history_source_association_table = Table(
     "history_sources",
     Base.metadata,
     Column("history_id", ForeignKey("history.history_id")),
-    Column("resource_id", ForeignKey("resources.resource_id")),
+    Column("source_id", ForeignKey("sources.source_id")),
 )
 
 
@@ -78,11 +88,12 @@ class History(Base):
     job_tool: Mapped[str] = mapped_column(Text, nullable=False)
     job_description: Mapped[str] = mapped_column(Text)
     when: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False)
+    operation: Mapped[str] = mapped_column(Text)
 
-    destination_resource_id: Mapped[int] = mapped_column(ForeignKey("resources.resource_id"))
-    destination: Mapped["Resource"] = relationship()
+    destination_id: Mapped[int] = mapped_column(ForeignKey("destinations.destination_id"))
+    destination: Mapped["Destination"] = relationship()
 
-    sources: Mapped[List[Resource]] = relationship(secondary=history_source_association_table)
+    sources: Mapped[List[Source]] = relationship(secondary=history_source_association_table)
 
     def __repr__(self):
         return self._repr(history_id=self.history_id, job_id=self.job_id)

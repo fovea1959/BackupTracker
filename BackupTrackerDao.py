@@ -10,13 +10,23 @@ class BackupTrackerDao:
     def __init__(self, session: Session = None):
         self.session = session
 
-    def resources(self):
-        stmt = select(BackupTrackerEntities.Resource)
+    def sources(self):
+        stmt = select(BackupTrackerEntities.Source)
         resources = self.session.scalars(stmt)
         return resources
 
-    def resource_by_name(self, name: str = None):
-        stmt = select(BackupTrackerEntities.Resource).where(BackupTrackerEntities.Resource.resource_path == name)
+    def source_by_name(self, name: str = None):
+        stmt = select(BackupTrackerEntities.Source).where(BackupTrackerEntities.Source.source_path == name)
+        result = self.session.scalars(stmt).first()
+        return result
+
+    def destinations(self):
+        stmt = select(BackupTrackerEntities.Destination)
+        resources = self.session.scalars(stmt)
+        return resources
+
+    def destination_by_name(self, name: str = None):
+        stmt = select(BackupTrackerEntities.Destination).where(BackupTrackerEntities.Destination.destination_path == name)
         result = self.session.scalars(stmt).first()
         return result
 
@@ -25,11 +35,12 @@ class BackupTrackerDao:
         result = self.session.scalars(stmt).first()
         return result
 
-    def record_job(self, job: BackupTrackerEntities.Job = None, when: datetime.datetime = None):
+    def record_job(self, job: BackupTrackerEntities.Job = None, operation: str = None, when: datetime.datetime = None):
         h = BackupTrackerEntities.History()
-        h.job = job
+        h.job_id = job.job_id
         h.job_description = job.job_description
         h.job_tool = job.job_tool
+        h.operation = operation
         h.destination = job.destination
         h.sources = job.sources
         h.when = when
