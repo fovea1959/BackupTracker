@@ -28,10 +28,11 @@ def main(argv):
             session.add(last_resource)
         session.commit()
 
-
         stmt = select(BackupTrackerEntities.Resource)
+        resource_map = {}
         for resource in session.scalars(stmt):
             print(resource)
+            resource_map[resource.resource_path] = resource
 
         stmt = select(BackupTrackerEntities.Resource).where(BackupTrackerEntities.Resource.resource_path == r'[zalman]:\r')
         r = None
@@ -45,7 +46,7 @@ def main(argv):
             job_tool='tool',
             job_description='description',
             destination=r,
-            sources=[r]
+            sources=[i for i in resource_map.values()]
         )
         session.add(history)
 

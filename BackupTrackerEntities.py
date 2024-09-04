@@ -39,11 +39,32 @@ class Resource(Base):
         return self._repr(resource_id=self.resource_id, resource_path=self.resource_path)
 
 
-history_association_table = Table(
+job_source_association_table = Table(
+    "job_sources",
+    Base.metadata,
+    Column("job_id", ForeignKey("jobs.job_id")),
+    Column("resource_id", ForeignKey("resources.resource_id")),
+)
+
+
+class Job(Base):
+    __tablename__ = 'jobs'
+
+    job_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    job_tool: Mapped[str] = mapped_column(Text, nullable=False)
+    job_description: Mapped[str] = mapped_column(Text)
+
+    destination_resource_id: Mapped[int] = mapped_column(ForeignKey("resources.resource_id"))
+    destination: Mapped["Resource"] = relationship()
+
+    sources: Mapped[List[Resource]] = relationship(secondary=job_source_association_table)
+
+
+history_source_association_table = Table(
     "history_sources",
     Base.metadata,
-    Column("resource_id", ForeignKey("resources.resource_id")),
     Column("history_id", ForeignKey("history.history_id")),
+    Column("resource_id", ForeignKey("resources.resource_id")),
 )
 
 
@@ -58,4 +79,4 @@ class History(Base):
     destination_resource_id: Mapped[int] = mapped_column(ForeignKey("resources.resource_id"))
     destination: Mapped["Resource"] = relationship()
 
-    sources: Mapped[List[Resource]] = relationship(secondary=history_association_table)
+    sources: Mapped[List[Resource]] = relationship(secondary=history_source_association_table)
