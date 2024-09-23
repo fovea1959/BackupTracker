@@ -1,5 +1,4 @@
 import datetime
-import typing
 
 import BackupTrackerEntities
 
@@ -28,7 +27,8 @@ class BackupTrackerDao:
         return resources
 
     def destination_by_name(self, name: str = None):
-        stmt = select(BackupTrackerEntities.Destination).where(BackupTrackerEntities.Destination.destination_path == name)
+        stmt = (select(BackupTrackerEntities.Destination)
+                .where(BackupTrackerEntities.Destination.destination_path == name))
         result = self.session.scalars(stmt).first()
         return result
 
@@ -58,4 +58,3 @@ class BackupTrackerDao:
         stmt = select(BackupTrackerEntities.History).where(BackupTrackerEntities.History.job_id == job.job_id)
         result = self.session.scalars(stmt)
         return result
-

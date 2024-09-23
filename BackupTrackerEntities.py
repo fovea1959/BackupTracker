@@ -12,9 +12,7 @@ from sqlalchemy.orm.base import Mapped
 
 class Base(DeclarativeBase):
     def _repr(self, **fields: typing.Dict[str, typing.Any]) -> str:
-        '''
-        Helper for __repr__
-        '''
+        # Helper for __repr__
         field_strings = []
         at_least_one_attached_attribute = False
         for key, field in fields.items():
@@ -68,6 +66,9 @@ class Job(Base):
     destination: Mapped["Destination"] = relationship()
 
     sources: Mapped[List[Source]] = relationship(secondary=job_source_association_table)
+
+    def __repr__(self):
+        return self._repr(job_id=self.job_id, job_description=self.job_description)
 
 
 history_source_association_table = Table(
