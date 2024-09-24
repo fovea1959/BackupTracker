@@ -37,6 +37,17 @@ class Destination(Base):
         return self._repr(resource_id=self.destination_id, resource_path=self.destination_path)
 
 
+class SourceHistoryAssociation(Base):
+    __tablename__ = "history_sources"
+    history_id: Mapped[int] = mapped_column(ForeignKey("history.history_id"), primary_key=True)
+    source_id: Mapped[int] = mapped_column(ForeignKey("sources.source_id"), primary_key=True)
+
+    # association between SourceHistoryAssociation -> Source
+    sources: Mapped["Source"] = relationship(back_populates="history_associations")
+    # association between SourceHistoryAssociation -> History
+    history: Mapped["History"] = relationship(back_populates="source_associations")
+
+
 class Source(Base):
     __tablename__ = 'sources'
 
@@ -46,13 +57,36 @@ class Source(Base):
     def __repr__(self):
         return self._repr(resource_id=self.source_id, resource_path=self.source_path)
 
+    # many-to-many relationship to Job, bypassing the `JobSourceAssociation` class
+    jobs: Mapped[List["Job"]] = relationship(
+        secondary="job_sources", back_populates="sources"
+    )
 
-job_source_association_table = Table(
-    "job_sources",
-    Base.metadata,
-    Column("job_id", ForeignKey("jobs.job_id")),
-    Column("source_id", ForeignKey("sources.source_id")),
-)
+    # association between Source -> SourceHistoryAssociation -> History
+    job_associations: Mapped[List["JobSourceAssociation"]] = relationship(
+        back_populates="sources"
+    )
+
+    # many-to-many relationship to History, bypassing the `SourceHistoryAssociation` class
+    history: Mapped[List["History"]] = relationship(
+        secondary="history_sources", back_populates="sources"
+    )
+
+    # association between Source -> SourceHistoryAssociation -> History
+    history_associations: Mapped[List["SourceHistoryAssociation"]] = relationship(
+        back_populates="sources"
+    )
+
+
+class JobSourceAssociation(Base):
+    __tablename__ = "job_sources"
+    job_id: Mapped[int] = mapped_column(ForeignKey("jobs.job_id"), primary_key=True)
+    source_id: Mapped[int] = mapped_column(ForeignKey("sources.source_id"), primary_key=True)
+
+    # association between JobSourceAssociation -> Job
+    jobs: Mapped["Job"] = relationship(back_populates="source_associations")
+    # association between JobSourceAssociation -> Source
+    sources: Mapped["Source"] = relationship(back_populates="job_associations")
 
 
 class Job(Base):
@@ -65,18 +99,18 @@ class Job(Base):
     destination_id: Mapped[int] = mapped_column(ForeignKey("destinations.destination_id"))
     destination: Mapped["Destination"] = relationship()
 
-    sources: Mapped[List[Source]] = relationship(secondary=job_source_association_table)
+    # many-to-many relationship to Sources, bypassing the `JobSourceAssociation` class
+    sources: Mapped[List["Source"]] = relationship(
+        secondary="job_sources", back_populates="jobs"
+    )
+
+    # association between Job -> JobSourceAssociation -> Source
+    source_associations: Mapped[List["JobSourceAssociation"]] = relationship(
+        back_populates="jobs"
+    )
 
     def __repr__(self):
         return self._repr(job_id=self.job_id, job_description=self.job_description)
-
-
-history_source_association_table = Table(
-    "history_sources",
-    Base.metadata,
-    Column("history_id", ForeignKey("history.history_id")),
-    Column("source_id", ForeignKey("sources.source_id")),
-)
 
 
 class History(Base):
@@ -94,7 +128,16 @@ class History(Base):
     destination_id: Mapped[int] = mapped_column(ForeignKey("destinations.destination_id"))
     destination: Mapped["Destination"] = relationship()
 
-    sources: Mapped[List[Source]] = relationship(secondary=history_source_association_table)
+    # many-to-many relationship to Sources, bypassing the `JobSourceAssociation` class
+    sources: Mapped[List["Source"]] = relationship(
+        secondary="history_sources", back_populates="history"
+    )
+
+    # association between Job -> JobSourceAssociation -> Source
+    source_associations: Mapped[List["SourceHistoryAssociation"]] = relationship(
+        back_populates="history"
+    )
 
     def __repr__(self):
-        return self._repr(history_id=self.history_id, job_id=self.job_id)
+        w: datetime.datetime = self.when
+        return self._repr(history_id=self.history_id, job_id=self.job_id, tool=self.job_tool, when=w.isoformat(), operation=self.operation)

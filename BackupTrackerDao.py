@@ -42,7 +42,11 @@ class BackupTrackerDao:
         result = self.session.scalars(stmt).first()
         return result
 
-    def record_job(self, job: BackupTrackerEntities.Job = None, operation: str = None, when: datetime.datetime = None):
+    def record_job(self,
+                   job: BackupTrackerEntities.Job = None,
+                   operation: str = None,
+                   when: datetime.datetime = None
+                   ) -> BackupTrackerEntities.History:
         h = BackupTrackerEntities.History()
         h.job_id = job.job_id
         h.job_description = job.job_description
@@ -54,7 +58,7 @@ class BackupTrackerDao:
         self.session.add(h)
         return h
 
-    def history_for_job(self, job: BackupTrackerEntities.Job = None):
+    def history_for_job(self, job: BackupTrackerEntities.Job = None) -> ScalarResult[BackupTrackerEntities.History]:
         stmt = select(BackupTrackerEntities.History).where(BackupTrackerEntities.History.job_id == job.job_id)
         result = self.session.scalars(stmt)
         return result
