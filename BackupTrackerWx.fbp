@@ -50,7 +50,7 @@
       <property name="minimum_size"></property>
       <property name="name">BackupTrackerMainFrame</property>
       <property name="pos"></property>
-      <property name="size">743,589</property>
+      <property name="size">1024,600</property>
       <property name="style">wxDEFAULT_FRAME_STYLE</property>
       <property name="subclass">; ; forward_declare</property>
       <property name="title">Backup Tracker</property>
@@ -295,6 +295,7 @@
                       <property name="window_extra_style"></property>
                       <property name="window_name"></property>
                       <property name="window_style"></property>
+                      <event name="OnDataViewListCtrlItemContextMenu">onSourceContext</event>
                       <event name="OnDataViewListCtrlSelectionChanged">onSourceSelected</event>
                       <object class="dataViewListColumn" expanded="true">
                         <property name="align">wxALIGN_LEFT</property>
@@ -350,9 +351,9 @@
                         <property name="align">wxALIGN_LEFT</property>
                         <property name="ellipsize"></property>
                         <property name="flags">wxDATAVIEW_COL_RESIZABLE|wxDATAVIEW_COL_SORTABLE</property>
-                        <property name="label">Destination</property>
+                        <property name="label">Tool</property>
                         <property name="mode">wxDATAVIEW_CELL_INERT</property>
-                        <property name="name">m_dataViewSourceHistoryDestination</property>
+                        <property name="name">m_dataViewSourceHistoryTool</property>
                         <property name="permission">protected</property>
                         <property name="type">Text</property>
                         <property name="width">-1</property>
@@ -360,7 +361,7 @@
                       <object class="dataViewListColumn" expanded="true">
                         <property name="align">wxALIGN_LEFT</property>
                         <property name="ellipsize"></property>
-                        <property name="flags">wxDATAVIEW_COL_RESIZABLE</property>
+                        <property name="flags">wxDATAVIEW_COL_RESIZABLE|wxDATAVIEW_COL_SORTABLE</property>
                         <property name="label">Operation</property>
                         <property name="mode">wxDATAVIEW_CELL_INERT</property>
                         <property name="name">m_dataViewSourceHistoryOperation</property>
@@ -368,7 +369,36 @@
                         <property name="type">Text</property>
                         <property name="width">-1</property>
                       </object>
+                      <object class="dataViewListColumn" expanded="true">
+                        <property name="align">wxALIGN_LEFT</property>
+                        <property name="ellipsize"></property>
+                        <property name="flags">wxDATAVIEW_COL_RESIZABLE|wxDATAVIEW_COL_SORTABLE</property>
+                        <property name="label">Destination</property>
+                        <property name="mode">wxDATAVIEW_CELL_INERT</property>
+                        <property name="name">m_dataViewSourceHistoryDestination</property>
+                        <property name="permission">protected</property>
+                        <property name="type">Text</property>
+                        <property name="width">-1</property>
+                      </object>
                     </object>
+                  </object>
+                </object>
+                <object class="wxMenu" expanded="true">
+                  <property name="label">MyMenu</property>
+                  <property name="name">m_menu3</property>
+                  <property name="permission">protected</property>
+                  <object class="wxMenuItem" expanded="true">
+                    <property name="bitmap"></property>
+                    <property name="checked">0</property>
+                    <property name="enabled">1</property>
+                    <property name="help"></property>
+                    <property name="id">wxID_ANY</property>
+                    <property name="kind">wxITEM_NORMAL</property>
+                    <property name="label">Add Source</property>
+                    <property name="name">m_menuItem3</property>
+                    <property name="permission">none</property>
+                    <property name="shortcut"></property>
+                    <property name="unchecked_bitmap"></property>
                   </object>
                 </object>
               </object>

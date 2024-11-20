@@ -4,6 +4,7 @@ import wx
 import wx.dataview
 
 import BackupTrackerDao
+import BackupTrackerEntities
 import BackupTrackerWx
 
 from sqlalchemy import create_engine
@@ -26,7 +27,7 @@ class EditJobDialog(BackupTrackerWx.EditJobDialog):
         if destinations is None:
             destinations = []
         self.m_destination.Clear()
-        for dd in destinations: # type: Destination
+        for dd in destinations:  # type: Destination
             self.m_destination.Append(dd.destination_path)
 
 
@@ -61,21 +62,25 @@ class BackupTrackerMainFrame(BackupTrackerWx.BackupTrackerMainFrame):
             self.m_dataViewListJobHistory.AppendItem([dt, h.operation])
 
     def onSourceSelected(self, event: wx.dataview.DataViewEvent):
-        clicked_source = self.sources[self.m_dataViewSources.GetSelectedRow()]
+        clicked_source: BackupTrackerEntities.Source = self.sources[self.m_dataViewSources.GetSelectedRow()]
         logging.debug("source selected: %s", self.m_dataViewJobs.GetSelection())
         logging.debug("selectedRow %s", self.m_dataViewJobs.GetSelectedRow())
         logging.debug("selection name = %s", clicked_source)
 
         self.m_dataViewSourceHistory.DeleteAllItems()
-        history = self.dao.history_for_source(clicked_source)
-        for h in history:
+        history = sorted(clicked_source.history, key=lambda hh: hh.when, reverse=True)
+        for h in history:  # type: BackupTrackerEntities.History
             dt = str(h.when)
-            self.m_dataViewListJobHistory.AppendItem([dt, h. h.operation])
+            self.m_dataViewSourceHistory.AppendItem([dt, h.job_tool, h.operation, h.destination.destination_path])
+
+    def onSourceContext( self, event ):
+        logging.debug("on source context: %s", event)
+        self.m_sourcesPanel.PopupMenu(self.m_menu3, event.GetPosition())
 
     def load_from_database(self):
         if self.session is not None:
             self.session.close()
-        engine = create_engine("sqlite:///BackupTracker.db", echo=True)
+        engine = create_engine("sqlite:///BackupTracker.db", echo=False)
         self.session = Session(engine)
         self.dao = BackupTrackerDao.BackupTrackerDao(self.session)
 
