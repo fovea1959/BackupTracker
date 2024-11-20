@@ -25,8 +25,13 @@ def main(argv):
             print(ss)
             sorted_history = sorted(ss.history, key=lambda s: s.when, reverse=True)
             for hh in sorted_history: # type: BackupTrackerEntities.History
-                w: datetime.datetime = hh.when
-                print(' ', hh, hh.destination.destination_path)
+                print(' ', hh, hh.job.job_description, hh.destination.destination_volume.volume_name + hh.destination.destination_directory)
+
+        print ('x' * 80)
+        for jj in dao.jobs().all():
+            print(jj, jj.destination, jj.sources)
+            for hh in dao.history_for_job(jj):
+                print(' ', hh)
 
 
 if __name__ == '__main__':

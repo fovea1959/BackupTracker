@@ -11,13 +11,23 @@ class BackupTrackerDao:
     def __init__(self, session: Session = None):
         self.session = session
 
+    def volume_by_name(self, name: str = None):
+        stmt = select(BackupTrackerEntities.Volume).where(BackupTrackerEntities.Volume.volume_name == name)
+        result = self.session.scalars(stmt).first()
+        return result
+
     def sources(self):
         stmt = select(BackupTrackerEntities.Source)
         resources = self.session.scalars(stmt)
         return resources
 
-    def source_by_name(self, name: str = None):
-        stmt = select(BackupTrackerEntities.Source).where(BackupTrackerEntities.Source.source_path == name)
+    def source_by_name_tuple(self, names: tuple = None):
+        v_id = self.volume_by_name(names[0]).volume_id
+        stmt = select(BackupTrackerEntities.Source).where(
+            (BackupTrackerEntities.Source.source_volume_id == v_id)
+            &
+            (BackupTrackerEntities.Source.source_directory == names[1])
+        )
         result = self.session.scalars(stmt).first()
         return result
 
@@ -26,9 +36,13 @@ class BackupTrackerDao:
         resources = self.session.scalars(stmt)
         return resources
 
-    def destination_by_name(self, name: str = None):
-        stmt = (select(BackupTrackerEntities.Destination)
-                .where(BackupTrackerEntities.Destination.destination_path == name))
+    def destination_by_name_tuple(self, names: tuple = None):
+        v_id = self.volume_by_name(names[0]).volume_id
+        stmt = select(BackupTrackerEntities.Destination).where(
+            (BackupTrackerEntities.Destination.destination_volume_id == v_id)
+            &
+            (BackupTrackerEntities.Destination.destination_directory == names[1])
+        )
         result = self.session.scalars(stmt).first()
         return result
 

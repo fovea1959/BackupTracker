@@ -22,13 +22,13 @@ class EditJobDialog(BackupTrackerWx.EditJobDialog):
             sources = []
         self.m_sourcesCheckList.Clear()
         for ss in sources:  # type: Source
-            self.m_sourcesCheckList.Append(ss.source_path)
+            self.m_sourcesCheckList.Append(ss.source_directory)
 
         if destinations is None:
             destinations = []
         self.m_destination.Clear()
         for dd in destinations:  # type: Destination
-            self.m_destination.Append(dd.destination_path)
+            self.m_destination.Append(dd.destination_directory)
 
 
 class BackupTrackerMainFrame(BackupTrackerWx.BackupTrackerMainFrame):
@@ -92,7 +92,7 @@ class BackupTrackerMainFrame(BackupTrackerWx.BackupTrackerMainFrame):
         self.sources = self.dao.sources().all()
         self.m_dataViewSources.DeleteAllItems()
         for source in self.sources:
-            self.m_dataViewSources.AppendItem([source.source_path])
+            self.m_dataViewSources.AppendItem([source.source_directory])
 
 
 def main(args):

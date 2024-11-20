@@ -9,21 +9,28 @@ from sqlalchemy.orm import Session
 import BackupTrackerEntities
 import BackupTrackerDao
 
-SS_S1_ARCHIVE_R = r'\\synology1\archive\r'
-SS_S1_HOMES = r'\\synology1\homes'
-SS_S1_HOUSEHOLD = r'\\synology1\household'
-SS_S1_MUSIC = r'\\synology1\music'
-SS_S1_PHOTOS = r'\\synology1\photos'
+V_ZALMAN = r'[zalman]:'
+V_SYNOLOGY1 = r'\\synology1'
+V_SYNOLOGY2 = r'\\synology2'
+V_WD_BLUE = r'[WD_BLUE]:'
+V_WD_BLACK = r'[WD_BLACK]:'
+V_WD_WX42D24ML7N4 = r'[WD-WX42D24ML7N4]:'
 
-SS_S2_BACKUP_SETS = r'\\synology2\backup_sets'
-SS_S2_VIDEO = r'\\synology2\video'
+SS_S1_ARCHIVE_R = (V_SYNOLOGY1, r'\archive\r')
+SS_S1_HOMES = (V_SYNOLOGY1, r'\homes')
+SS_S1_HOUSEHOLD = (V_SYNOLOGY1, r'\household')
+SS_S1_MUSIC = (V_SYNOLOGY1, r'\music')
+SS_S1_PHOTOS = (V_SYNOLOGY1, r'\photos')
 
-DD_ZALMAN_R = r'[zalman]:\r'
-DD_ZALMAN_MUSIC = r'[zalman]:\music',
-DD_WD_BLUE = r'bk_synology1_wd_blue.hbk'
-DD_WX42_S1 = r'[WD-WX42D24ML7N4]:\WD-WX42D24ML7N4_synology1'
-DD_WX42_S2 = r'[WD-WX42D24ML7N4]:\WD-WX42D24ML7N4_synology2'
-DD_WD_BLACK = r'bk_video_wd_black'
+SS_S2_BACKUP_SETS = (V_SYNOLOGY2, r'\backup_sets')
+SS_S2_VIDEO = (V_SYNOLOGY2, r'\video')
+
+DD_ZALMAN_R = (V_ZALMAN, r'\r')
+DD_ZALMAN_MUSIC = (V_ZALMAN, r'\music'),
+DD_WD_BLUE = (V_WD_BLUE, r'\bk_synology1_wd_blue.hbk')
+DD_WX42_S1 = (V_WD_WX42D24ML7N4, r'\WD-WX42D24ML7N4_synology1')
+DD_WX42_S2 = (V_WD_WX42D24ML7N4, r'\WD-WX42D24ML7N4_synology2')
+DD_WD_BLACK = (V_WD_BLACK, r'\bk_video_wd_black')
 
 jj = {
     'bkp_synology1_wd_blue': ((SS_S1_HOMES, SS_S1_HOUSEHOLD, SS_S1_PHOTOS), DD_WD_BLUE, 'hyperbackup', (
@@ -49,10 +56,14 @@ jj = {
 
 
 def main(argv):
-    os.remove('BackupTracker.db')
+    try:
+        os.remove('BackupTracker.db')
+    except FileNotFoundError:
+        pass
     engine = create_engine("sqlite:///BackupTracker.db", echo=True)
     BackupTrackerEntities.Base.metadata.create_all(engine)
 
+    vv = set()
     ss = set()
     dd = set()
     for vtuple in jj.values():
@@ -61,14 +72,30 @@ def main(argv):
         dd.add(vtuple[1])
     print(ss)
     print(dd)
+    for s1 in ss:
+        vv.add(s1[0])
+    for d1 in dd:
+        vv.add(d1[0])
+    print(vv)
 
     with (Session(engine) as session):
         dao = BackupTrackerDao.BackupTrackerDao(session)
 
+        for v in vv:
+            session.add(BackupTrackerEntities.Volume(volume_name=v))
+        session.commit()
+
         for s in ss:
-            session.add(BackupTrackerEntities.Source(source_path=s))
+            session.add(BackupTrackerEntities.Source(
+                source_volume_id=dao.volume_by_name(s[0]).volume_id,
+                source_directory=s[1])
+            )
+
         for d in dd:
-            session.add(BackupTrackerEntities.Destination(destination_path=d))
+            session.add(BackupTrackerEntities.Destination(
+                destination_volume_id=dao.volume_by_name(d[0]).volume_id,
+                destination_directory=d[1])
+            )
         session.commit()
 
         # add jobs
@@ -76,8 +103,8 @@ def main(argv):
             job = BackupTrackerEntities.Job(
                 job_description=k,
                 job_tool=vtuple[2],
-                destination=dao.destination_by_name(vtuple[1]),
-                sources=[dao.source_by_name(s1) for s1 in vtuple[0]]
+                destination=dao.destination_by_name_tuple(vtuple[1]),
+                sources=[dao.source_by_name_tuple(s1) for s1 in vtuple[0]]
             )
             session.add(job)
         session.commit()

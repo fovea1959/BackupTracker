@@ -5,7 +5,7 @@ import sqlalchemy.orm.exc
 
 from typing import List
 
-from sqlalchemy import Integer, Text, DateTime, ForeignKey
+from sqlalchemy import Integer, Text, DateTime, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, mapped_column, relationship
 from sqlalchemy.orm.base import Mapped
 
@@ -27,14 +27,31 @@ class Base(DeclarativeBase):
         return f"<{self.__class__.__name__} {id(self)}>"
 
 
+class Volume(Base):
+    __tablename__ = 'volumes'
+
+    volume_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    volume_name: Mapped[str] = mapped_column(Text, unique=True)
+
+
 class Destination(Base):
     __tablename__ = 'destinations'
 
     destination_id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    destination_path: Mapped[str] = mapped_column(Text, unique=True)
+    destination_volume_id: Mapped[int] = mapped_column(ForeignKey("volumes.volume_id"))
+    destination_directory: Mapped[str] = mapped_column(Text)
+
+    destination_volume: Mapped["Volume"] = relationship()
+
+    __table_args__ = (
+        UniqueConstraint('destination_volume_id', 'destination_directory', name='_destination_uc'),
+    )
 
     def __repr__(self):
-        return self._repr(resource_id=self.destination_id, resource_path=self.destination_path)
+        return self._repr(
+            destination_id=self.destination_id,
+            path=self.destination_volume.volume_name + self.destination_directory
+        )
 
 
 class SourceHistoryAssociation(Base):
@@ -52,10 +69,21 @@ class Source(Base):
     __tablename__ = 'sources'
 
     source_id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    source_path: Mapped[str] = mapped_column(Text, unique=True)
+    source_volume_id: Mapped[int] = mapped_column(ForeignKey("volumes.volume_id"))
+    source_directory: Mapped[str] = mapped_column(Text)
+
+    source_volume: Mapped["Volume"] = relationship()
+
+    __table_args__ = (
+        UniqueConstraint('source_volume_id', 'source_directory'
+                                             '', name='_source_uc'),
+    )
 
     def __repr__(self):
-        return self._repr(resource_id=self.source_id, resource_path=self.source_path)
+        return self._repr(
+            source_id=self.source_id,
+            path=self.source_volume.volume_name + self.source_directory
+        )
 
     # many-to-many relationship to Job, bypassing the `JobSourceAssociation` class
     jobs: Mapped[List["Job"]] = relationship(
