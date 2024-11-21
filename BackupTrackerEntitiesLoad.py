@@ -15,6 +15,10 @@ V_SYNOLOGY2 = r'\\synology2'
 V_WD_BLUE = r'[WD_BLUE]:'
 V_WD_BLACK = r'[WD_BLACK]:'
 V_WD_WX42D24ML7N4 = r'[WD-WX42D24ML7N4]:'
+V_X3250 = r'\\x3250-[1,2]:'
+V_VRP_3809 = r'[VRP_3809]:'
+V_VRP_3730 = r'[VRP_3730]:'
+V_WHIRLPOOL = r'(whirlpool):'
 
 SS_S1_ARCHIVE_R = (V_SYNOLOGY1, r'\archive\r')
 SS_S1_HOMES = (V_SYNOLOGY1, r'\homes')
@@ -25,12 +29,20 @@ SS_S1_PHOTOS = (V_SYNOLOGY1, r'\photos')
 SS_S2_BACKUP_SETS = (V_SYNOLOGY2, r'\backup_sets')
 SS_S2_VIDEO = (V_SYNOLOGY2, r'\video')
 
+SS_X3250_IC_TIMELAPSE = (V_X3250, r'\3620-pi-camera-1')
+
+SS_VRP = (V_WHIRLPOOL, r'\VRP')
+
 DD_ZALMAN_R = (V_ZALMAN, r'\r')
 DD_ZALMAN_MUSIC = (V_ZALMAN, r'\music'),
 DD_WD_BLUE = (V_WD_BLUE, r'\bk_synology1_wd_blue.hbk')
 DD_WX42_S1 = (V_WD_WX42D24ML7N4, r'\WD-WX42D24ML7N4_synology1')
 DD_WX42_S2 = (V_WD_WX42D24ML7N4, r'\WD-WX42D24ML7N4_synology2')
 DD_WD_BLACK = (V_WD_BLACK, r'\bk_video_wd_black')
+DD_IC_3809 = (V_VRP_3809, r'\3620-pi-camera-1')
+DD_IC_3730 = (V_VRP_3730, r'\3620-pi-camera-1')
+DD_VRP_3809 = (V_VRP_3809, r'\VRP')
+DD_VRP_3730 = (V_VRP_3730, r'\VRP')
 
 jj = {
     'bkp_synology1_wd_blue': ((SS_S1_HOMES, SS_S1_HOUSEHOLD, SS_S1_PHOTOS), DD_WD_BLUE, 'hyperbackup', (
@@ -51,7 +63,19 @@ jj = {
         ('backup', '2024-08-30'),
         ('backup', '2019-07-19 15:22'),
         ('backup', '2019-06-19 15:22'),
-    ), {})
+    ), {}),
+    'ic_to_3809': ((SS_X3250_IC_TIMELAPSE,), DD_IC_3809, 'tar/md5', (
+        ('tar/md5', '2024-11-21'),
+    ), {}),
+    'ic_to_3730': ((SS_X3250_IC_TIMELAPSE,), DD_IC_3730, 'tar/md5', (
+        ('tar/md5', '2024-11-21'),
+    ), {}),
+    'vrp_to_3809': ((SS_VRP,), DD_VRP_3809, 'tar/md5', (
+        ('md5', '2024-11-21'),
+    ), {}),
+    'vrp_to_3730': ((SS_VRP,), DD_VRP_3730, 'tar/md5', (
+        ('md5', '2024-11-21'),
+    ), {}),
 }
 
 
